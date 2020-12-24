@@ -1,13 +1,23 @@
 from flask import Flask, request
 from flask_restful import Resource, Api
+from flask_jwt import JWT, jwt_required
+from security import authenticate, identity
 
 app = Flask(__name__)
+app.secret_key = 'secret'
 api = Api(app)
+
+jwt = JWT(app, authenticate, identity)
+# JWT creates a new endpoint. That endpoint is called /auth
+# When we call /auth we send it a username and a password
+# Then the JWT extension gets the username and password and then sends it over to the authenticate function
+# When user is authenticated, the /auth endpoint returns a JWToken
 
 items = []
 
 
 class Item(Resource):
+    # @jwt_required()
     def get(self, name):
         item = next(filter(lambda x: x['name'] == name, items), None)
         return {'item': item}, 200 if item else 404
